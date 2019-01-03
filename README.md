@@ -1,107 +1,204 @@
-# CSCI 3601 Production Template -- Spring 2018
+# CSCI 3601 Production Template -- Spring 2018 Iteration 4 Notes
 [![Build Status](https://travis-ci.org/UMM-CSci-3601-S18/iteration-4-secure-super-group.svg?branch=master)](https://travis-ci.org/UMM-CSci-3601-S18/iteration-4-secure-super-group)
 <!-- TOC depthFrom:1 depthTo:5 withLinks:1 updateOnSave:1 orderedList:0 -->
 ## Table of Contents
-- [Setup](#setup)
-- [Running your project](#running-your-project)
-- [Deploying Project for Production](#deploying-project-for-production)
-- [Testing and Continuous Integration](#testing-and-continuous-integration)
-- [Resources](#resources)
-	- [Angular 4](#angular-4)
-	- [SparkJava](#sparkjava)
-	- [MongoDB](#mongodb)
-
+- [Project Description](#project-description)
+- [LogIn Notes](#login-notes)
+- [Developer Side Notes](#developer-side-notes)
+- [Future Improvement](#future-improvement)
+- [Pamphlet](#pamphlet)
+- [Credits](#credits)
 <!-- /TOC -->
 
-## Setup
+## Project Description
+Sunshine Journal is a web app where users can log and track their mood, set goals and write journals. Sunshine journal is meant for anybody who thinks keeping track of their mood is beneficial, and/or helping they keep up with certain goals and express themselves by writing journals.
 
-As in the labs, you'll be using IntelliJ. Once you've all joined your
-group using GitHub classroom, you can clone your repository using IntelliJ:
+### Tools Used
+The tools we used consisted primarily of HTML, CSS, and Typescript was used in conjunction with Angular 5.  Angular Material were used with HTML and CSS for design.
+For the backend, we have used Java, where a Java Spark server interacts with MongoDB. Java unit testing was used for the backend. 
+Angular CLI and Yarn were used to manage builds and dependencies. And, Karma and Jasmine were used for front end testing.
+Gradle have been used to manage launching local tasks.
 
-- When prompted to create a new IntelliJ project, select **yes**.
-- Select **import project from existing model** and select **Gradle.**
-  - Make sure **Use default Gradle wrapper** is selected.
-- Click **Finish.**
-- If IDEA asks you if you want to compile JavaScript to TypeScript :fire: DO NOT :fire: – if you do it will break your project.
+## LogIn Notes
 
-:warning: IDEA will sometimes decide to "help" you by offering
-"Compile TypeScript to JavaScript?" :bangbang: *Never* say "OK" to this
-offer -- if you do it will make a complete mess of your project. We're
-using other tools (`gradle`, `yarn`, and `ng`) to do that compilation. 
-If you let IDEA do it, you'll
-have a ton of JavaScript files cluttering up your project and confusing other
-tools.
+- Click `Sign In` on the top left corner under the `Home` button and sign in using your Google account.
 
-## Running your project
+## Developer Side Notes
 
-- The **build** task will _build_ the entire project (but not run it)
-- The familiar **run** Gradle task will still run your SparkJava server.
-(which is available at ``localhost:4567``)
-- The **runClient** task will build and run the client side of your project (available at ``localhost:9000``)
-- The **runAllTests** task will run both the Java (server) tests and the `karma` (client-side, Angular) tests
-- The **runServerTests** task will run the Java (server) tests
-- The **runClientTests** task will run the `karma` (client-side, Angular) tests. 
-   * The **runClientTestWithCoverage** task will run the `karma` tests and generate test coverage data which will be placed in `client/coverage`; open the `index.html` in that directory in a browser and you'll get a web interface to that coverage data.
-   * The **runClientTestsAndWatch** task will run the `karma` tests, but leave the testing browser open and the tests in "watch" mode. This means that any changes you make will cause the code to recompile and the tests to be re-run in the background. This can give you continuous feedback on the health of your tests.
-- The **runE2ETest** task runs the E2E (end-to-end, Protractor) tests. For this to work you _must_ make sure you have your server running, and you may need to re-seed the database to make sure it's in a predictable state.
-- The **seedMongoDB** task will load the "demo" data into the Mongo database. If you want/need to change what gets loaded, the `seedMongoDB` command is defined in the top level `build.gradle` and current loads two files, `todos.seed.json` and `users.seed.json`, both of which are also in the top level of the project. (They probably should be in a `data` directory to reduce clutter, so you might want to move them.) To load new/different data you should create the necessary JSON data files, and then update `build.gradle` to load those files.
+#### Emoji Carousel:
 
-**build.sh** is a script that calls upon gradle build to build the entire project which creates an executable to be able to launch the
-project in production mode. To run **build.sh**, go to your project directory in a terminal and enter:``./build.sh``
+This feature is the main function of the website. This allows users to select an emotion from a selection of five by navigating left or right. From the selected emotion the user can then select an intensity by navigating up or down. 
+The user is able to either use the arrow buttons to navigate through or by 'swiping' through by click and dragging within the emoji selection area. This function makes more sense on a phone but still works on either.
+Once a user has selected an emoji they are able to submit it. Once submitted the entry is saved in the database and the user is prompted in a popup window that allows them to view a YouTube video if they would like.
+Each different emoji including the various intensity is assigned a text that is displayed below to clarify what each emoji represents.
 
-When **build.sh** is run, the script **.3601_run.sh** is copied to ~/**3601.sh**. When this is launched, for example, ``./3601.sh``, will run your project in production mode. The API_URL in _environment.prod.ts_ needs to be
-the actual URL of your server. If your server is deployed on a droplet or virtual machine, for example, then you want something like 
-`http://192.168.0.1:4567` where you replace that IP with the IP of your droplet. If you've set up a domain name for your system, you can use that instead, like `http://acooldomainname.com`.
+Each time an emoji is sent to the database these fields are stored:
+- `_id: string;`
+- `userID: string;`
+- `ownerFirstName: string;`
+- `mood: number;`
+-  `intensity: number;`
+- `date: Date;` <br />
+<br />
+These parameters are defined within the `emoji.ts` file
 
-:exclamation: Pro-tip: IntelliJ comes with a nice view to see the mongo databases setup.
-To access this click on File -> Settings -> Plugins, type Mongo and make sure the Mongo Plugin is installed.
-Now head to View -> Tool Windows -> Mongo Explorer. Then use the tool icon to add configuration.
-Once prompted type for Path to Mongo Shell: _"/usr/bin/mongo"_
-and hit the <span style="color:green">green :heavy_plus_sign:</span>, to add your label and, huzzah!, Mongo Explorer is on your side bar.
+The function of moving through the moods as well as intensity can be found in the `home.component.html` (see Control Gestures in html)
+The function of wrapping around for moods and intensity can be found in the `home.component.ts` (see `parseSwipeDirection` and `parseEmotionIntensity`)
 
-## Deploying Project for Production 
-Instructions on setting up the project for production can be found here: 
-[UMM CSCI 3601 Droplet Setup Instructions](https://gist.github.com/pluck011/d968c2280cc9dc190a294eaf149b1c6e)
+Files related to this function can be found within:
+- `home.component.html`
+- `home.component.ts`
+- `home.service.ts`
 
-## Testing and Continuous Integration
+#### Responses:
 
-Testing options are still integrated in this lab so you can test the client, or the server or both.
-Testing client:
-* `runAllTests` runs both the server tests and the clients tests once.
-* `runClientTests` runs the client tests once.
-* `runClientTestsAndWatch` runs the client tests every time that the code changes after a save.
-* `runClientTestsWithCoverage` runs the client tests and deposits code coverage statistics into a new directory within `client` called `coverage`. In there you will find an `index.html`. Right click on `index.html` and select `Open in Browser` with your browser of choice. For Chrome users, you can drag and drop index.html onto chrome and it will open it.  
-* `runE2ETest` runs end to end test for the client side. NOTE: Two Gradle tasks _must_ be run before you can run the e2e tests. 
-The server (`run`) needs to be on for this test to work, and you have to
-need to have data in the `dev` database before running the e2e tests!
-* runServerTests runs the server tests.
+Responses are given to the user after they submit an emotion on the home page and click the `Get a Response` button. 
 
-Turn on your repo in [Travis CI][travis], replace the build status image in this README, and push your changes. That will trigger a build with Travis.
-
-## Resources
-
-### Angular 5
-
-- [What are environments in Angular CLI?][environments]
-- [Testing Angular with Karma/Jasmine][angular-karma-jasmine]
-- [End to end testing (e2e) with protactor and Angular CLI][e2e-testing]
-- [Angular CLI commands](https://github.com/angular/angular-cli/wiki)
-
-### SparkJava
-- [Spark documentation][spark-documentation]
-- [HTTP Status Codes][status-codes]
-- [Other Resources][lab2]
-
-### MongoDB
-- [Mongo's Java Drivers (Mongo JDBC)][mongo-jdbc]
+A response is a link (as of now, only YouTube videos, but it could be changed to accommodate any kind of link) that is helpful to the user in some way. There is a set of default responses seeded into the database that is accessed by default whenever the user gets a response. 
 
 
-[angular-karma-jasmine]: https://codecraft.tv/courses/angular/unit-testing/jasmine-and-karma/
-[e2e-testing]: https://coryrylan.com/blog/introduction-to-e2e-testing-with-the-angular-cli-and-protractor
-[environments]: http://tattoocoder.com/angular-cli-using-the-environment-option/
-[spark-documentation]: http://sparkjava.com/documentation.html
-[status-codes]: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
-[lab2]: https://github.com/UMM-CSci-3601/3601-lab2_client-server/blob/master/README.md#resources
-[mongo-jdbc]: https://docs.mongodb.com/ecosystem/drivers/java/
-[labtasks]: LABTASKS.md
-[travis]: https://travis-ci.org/
+The system accounts for possible bad links by checking the URL with commons-validator. It also converts YouTube watch links to embedded links so they can be viewed in the webpage itself.
+
+The user can also add responses that can show up for themselves only, but have a random chance to be selected. 
+
+Note that in order to have getting a random response to work correctly, MongoDB on your deployed server needs to be at least version 3.6, because of the way that the random responses work. 
+
+#### Reports:
+
+Reports provides a line chart and a stacked bar plot based on users’ emotion selection in home page.  Stacked bar plot shows up when the tab “Bar plot” is selected, and if you want to switch to check the line chart, select the “Line chart” tab.
+
+Both line chart and bar plot are default to show the frequency of users’ chosen emotion in each day of this week (Monday to Sunday).  Different colors of lines/bars response to different emotions, legends on the top of each plot shows the correspondence between colors and emotions.  Click the legends can filter the relative emotions in the current plot.  For getting the yearly report, choose `year` in the dropdown above the plots tab, then click `submit`.  For getting more flexible historical report, please choose `start date` and `end date` first, then using dropdown to choose `year` or `week` click `submit`.
+
+We used `chart.js` for making both plots, scripted it in html file with src: https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js  
+Bar plot and line chart are using the same canvas but with different type (Line chart with type `line`, but bar plot with type `bar` and set stacked as `true` in both x-axes and y-axes).  
+
+Filtering by `date` and `mood` in `emoji` stored in the database and get the length of emoji list left after filtering to get the frequency of a emotion.  Noticed that date filter happened before mood filter, and get frequency of all emotions in current week is a default setting.
+
+#### Goals:
+
+The Goals' page is where users can set up goals that they want to do. To set up a new a goal is really easy, the user needs to just click on `Add a Goal` button, where a dialog will pop up. Here, users need to choose a name for their goal, choose a start and end date, choose a category for their goal (The four categories you can choose from are: Chores, Health, Social, Other), and lastly, they need  to choose the frequency of the goal. For the fields of Goal, only `Name`is a required field, all the other fields are optional. 
+
+The Goals' page contains three tabs `Incomplete Goals`, `All Goals`, and `Completed Goals`. As the names suggest, under `Incomplete Goals`, the user will find goals that are not completed, under `Completed Goals`, the user will find goals that have been completed, and under `All Goals`, the user will find all of the goals that the user has created.
+
+To complete a goal, users need to click on the checkmark button on the goal. Users can also edit goals that have not been completed, by clicking on the edit button on the goal. Users can edit all of the fields of the goal that they want to.
+
+Lastly, there is also a filter on the Goals' page, where users can filter goals by the fields in the goal. When users input some text in the filter, it will look for the inputted text in `Name`, `Category`, and `Frequency` of the goals simultaneously. So, it will return the goals where their `Name`, `Category`, or `Frequency` contains the inputted text, according to the tab that is selected.
+
+#### Journaling:
+
+Journals provide a place where users can post their journals. So, users can write why they were happy or angry that day and which makes them angry or happy, or they can just write anything in general. Users can easily add a journal by clicking the `Add a New Journal` button. When you are writing a journal, you can write as much as you want, without having to worry that your text entry will exceed the text box, also we have a scrolling bar that makes it easy to navigate through your entered text when writing a journal.
+
+Users can view their submitted journals, by clicking on the `View` button, and edit their journals, by clicking on the `Edit` button, when they want to.
+
+Users can search through their journals by `Subject` of the journal and by `Body`, which is the text entered for a journal. Another feature that we have for the Journaling page, is that we have navigation buttons. At most 10 journals will be shown on the Journaling page each time. Users can click on the right and left arrow to move to the next and previous page, respectively. We also have a "go the first page" button, and a "go to the last page" button, which are the left most and right most navigation buttons, respectively. 
+
+#### Resources:
+
+This page has all the three important phone numbers. Clients can refer to them whenever they want to.
+
+It also has some basic page links that helps you if you are feeling anxiety to anger.
+
+The goal was to consolidate the resource page where you could add your own resource pages and your own sets of contacts so that it would show up in one page.
+
+#### Contact:
+
+In the contact's page, users can find all of their contacts. Users can easily add a contact by clicking the `Add your own contact` button. When this button is clicked, a dialog will pop up where users can put in the name of the contact, email of the contact, and the phone number of the contact. Users can edit the contact, and users can also delete the contact by clicking the `Delete Contact` button. An additional feature that we have is that users can favorite the contact by clicking the heart button on the contact. When the contact is favorite, the contact will appear in the `crisis` button pop up. If users do not want a contact to appear in the `crisis` button pop up anymore, users can do this easily by removing the contact from favorites, by simply clicking the heart button on the contact again. It is easy to check when a contact is favorited, because the heart on the contact looks darker, so it looks like that it has been clicked. 
+
+#### Crisis:
+
+When the bright red `crisis` button is clicked, it will show a pop up containing the suicide prevention lifleline, and the crisis hotline. Additionally, all of the users' favorited contacts will also show up in this pop up.
+
+## Future Improvement
+
+#### Reports:
+
+1. Providing more time filters.  We have weekly and yearly report so for in report page, we will provide monthly and hourly filter in the future.
+
+2. Scatter plot will be provided to show the intensity information.  We have two plots to show the emotional frequency, but users cannot check the intensity history report, we will provide a scatter plot to show the historical intensity of each emotion.
+
+#### Mobile Optimization:
+
+1. Remove/hide the navigation buttons on the home page when a user is on mobile. We have the swipe feature and it would free up space.
+
+2. Improve the sizing for charts on mobile. The actual chart part looks ok but the filter area could use some work.
+
+3. Possibly change view of goals on mobile. Currently card view is used but that uses a lot of space so you are only able to view one or two goals at a time depending on the size of your mobile screen.
+
+4. Journal mat-card-main. This needs to be fixed so that it fits around all of the journals being displayed. This has a similar issue to the goals as both are card view.
+
+5. Change menu to a more standard mobile navigation. As is on small devices we run out of space with separate icons for each menu item. We also have a duplicate phone icon, one for crisis button and one for contacts. I feel like this is confusing to the user and should be changed in the future.
+
+6. Fix the window centering for adding new items. When a new goal or new response window opens it is justified left. This should be changed to be centered.
+
+7. Simplify goals on mobile. There are many options for goals right now. I think it would be nice to have a simple title and category with a show more options to save on space.
+
+8. Give the embedded videos an option to go to fullscreen.
+
+9. The user has to scroll to fully see the embedded video, this needs to be changed so it shows the entire video without the need of scrolling.
+
+#### Resource Page:
+
+1. Have a section for users to view/delete videos they have added to embedded videos.
+
+2. Give users the option to create/select different playlists for their embedded videos.
+
+3. We want to also integrate the contact page with the resource page such that the users can find all useful information in one place. 
+
+#### Goals Page:
+
+1. We want to make it that users can get notifications/reminders for their daily goals. 
+
+2. Additionally, for a goal that is getting close to the end date, we want to make it possible that users receive push notifications that the end day of their goal is getting close.
+
+#### Journaling Page:
+
+1. Update the journals such that they look more consistent with the rest of web page.
+
+2. Make the `Subject` and `Body` filter into one combo filter, so when a text is entered in the filter, it looks through both the subject and body of the journals simultaneously.
+
+#### Contact Page:
+
+1. Update the contacts to show them in a more useful way.
+
+2. Make it such that when a contact is favorited, the heart turns red, instead of a darker grey.
+
+#### HTTPS Support:
+
+Unfortunately, we weren't able to get https to work on our project. If in the future someone wants to add https to the project, [click here to go to that documentation](https://github.com/UMM-CSci-3601-S18/iteration-4-megabittron/blob/master/Documentation/HTTPS.md)
+
+## Pamphlet
+
+Link: https://docs.google.com/document/d/1mRzK-fZytXP5xbv3Fp5vLWHSLybcmTmnJOCOY430QX0/edit?usp=sharing
+
+## Credits
+
+Emoji credits: 
+
+https://www.flaticon.com/packs/emoji-3
+
+Developing Credits:
+
+- Aurora Codes
+- Blake Bellamy
+- Chuck Menne
+- David Chong
+- Ethan Hamer
+- Hunter Welch
+- Isaac Yoakm
+- Jubair Hassan
+- Khondoker Prio
+- Kyle Foss
+- Matthew Munns
+- Rocherno de Jongh
+- Yujing Song
+- Sungjae Park
+
+Built on code from:
+- Brian Caravantes
+- K.K. Lamberty
+- Joseph Thelen
+- Nic McPhee
+- Nick Bushway
+- Nick Plucker
+- Paul Friederichsen
+- Shawn Seymour
